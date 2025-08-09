@@ -1,0 +1,21 @@
+{
+  "tickets": [
+    {
+      "id": "1",
+      "key": "PROJ-123",
+      "summary": "Implement user authentication system with OAuth integration",
+      "description": "Create a comprehensive authentication system that supports OAuth providers like Google, GitHub, and Microsoft.",
+      "type": "Story",
+      "status": "In Progress",
+      "priority": "High",
+      "assignee": { "name": "Sarah Chen", "avatar": "", "initials": "SC" },
+      "reporter": { "name": "John Smith", "initials": "JS" },
+      "created": "2024-09-01T12:00:00.000Z",
+      "updated": "2024-09-03T12:00:00.000Z",
+      "storyPoints": 8,
+      "sprint": "1"
+    }
+  ]
+}
+
+

@@ -16,19 +16,25 @@ import {
   Eye
 } from 'lucide-react';
 import { Issue } from '../types';
+import FiltersBar from './FiltersBar';
 
 const TaskTable = () => {
   const { state, openCreateIssueModal, openIssueDetail } = useApp();
+  
 
-  // Filter issues based on search query and current sprint
+  // Filter issues based on search query, current sprint, and filters
   const filteredIssues = state.issues.filter(issue => {
     const matchesSearch = !state.searchQuery || 
       issue.summary.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
       issue.key.toLowerCase().includes(state.searchQuery.toLowerCase());
     
     const inCurrentSprint = issue.sprint === state.currentSprint?.id;
-    
-    return matchesSearch && inCurrentSprint;
+    const matchesAssignee = state.filters.assignee.length === 0 || (issue.assignee && state.filters.assignee.includes(issue.assignee.name));
+    const matchesStatus = state.filters.status.length === 0 || state.filters.status.includes(issue.status);
+    const matchesType = state.filters.type.length === 0 || state.filters.type.includes(issue.type);
+    const matchesPriority = state.filters.priority.length === 0 || state.filters.priority.includes(issue.priority);
+
+    return matchesSearch && inCurrentSprint && matchesAssignee && matchesStatus && matchesType && matchesPriority;
   });
 
   const completedIssues = filteredIssues.filter(issue => issue.status === 'Done').length;
@@ -119,6 +125,9 @@ const TaskTable = () => {
           </div>
         </div>
       </div>
+
+      {/* Filters */}
+      <FiltersBar />
 
       {/* Issues Table */}
       <div className="bg-white dark:bg-gray-900 mx-6 mt-4 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">

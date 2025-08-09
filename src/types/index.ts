@@ -20,6 +20,13 @@ export interface Issue {
   storyPoints?: number;
   labels?: string[];
   sprint?: string;
+  attachments?: {
+    id: string;
+    name: string;
+    url?: string;
+    type: string;
+    size: number;
+  }[];
 }
 
 export interface Sprint {

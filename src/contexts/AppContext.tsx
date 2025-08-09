@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useReducer, ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, ReactNode, useEffect } from 'react';
 import { Issue, Sprint, Project, User } from '../types';
+import { fetchTickets } from '../services/mockApi';
 
 interface AppState {
   issues: Issue[];
@@ -234,6 +235,14 @@ function appReducer(state: AppState, action: AppAction): AppState {
         filters: { ...state.filters, ...action.payload }
       };
     }
+    case 'HYDRATE_ISSUES' as any: {
+      // Action used internally by provider to replace issues with hydrated ones
+      const issues = (action as any).payload as Issue[];
+      return {
+        ...state,
+        issues,
+      } as AppState;
+    }
     case 'MOVE_ISSUE_TO_STATUS': {
       return {
         ...state,
@@ -295,6 +304,38 @@ export const useApp = () => {
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(appReducer, initialState);
+
+  // Optional: hydrate from mock API once on load (non-blocking)
+  useEffect(() => {
+    (async () => {
+      try {
+        const tickets = await fetchTickets();
+        if (tickets && tickets.length > 0) {
+          const mapped: Issue[] = tickets.map(t => ({
+            id: t.id,
+            key: t.key,
+            summary: t.summary,
+            description: t.description,
+            type: t.type,
+            status: t.status,
+            priority: t.priority,
+            assignee: t.assignee,
+            reporter: t.reporter,
+            created: new Date(t.created),
+            updated: new Date(t.updated),
+            storyPoints: t.storyPoints,
+            labels: t.labels,
+            sprint: t.sprint,
+          }));
+          // Replace the initial demo issues with mock API issues for consistency
+          (dispatch as React.Dispatch<any>)({ type: 'HYDRATE_ISSUES', payload: mapped });
+        }
+      } catch (_) {
+        // ignore mock load errors
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const createIssue = (issue: Omit<Issue, 'id' | 'key' | 'created' | 'updated'>) => {
     dispatch({ type: 'CREATE_ISSUE', payload: issue });

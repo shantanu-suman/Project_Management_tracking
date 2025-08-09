@@ -1,5 +1,6 @@
 import React from 'react';
 import { useApp } from '../contexts/AppContext';
+import { Link, NavLink } from 'react-router-dom';
 import { 
   BarChart3, 
   Bug, 
@@ -19,22 +20,22 @@ const Sidebar = () => {
   const { openCreateIssueModal } = useApp();
 
   const planningItems = [
-    { icon: BarChart3, label: 'Roadmap', active: false },
-    { icon: CheckSquare, label: 'Backlog', active: false },
-    { icon: Target, label: 'Active sprints', active: true },
-    { icon: BarChart3, label: 'Reports', active: false },
+    { icon: BarChart3, label: 'Roadmap', to: '/stage/planning' },
+    { icon: CheckSquare, label: 'Backlog', to: '/tickets' },
+    { icon: Target, label: 'Active sprints', to: '/sprint' },
+    { icon: BarChart3, label: 'Reports', to: '/reports' },
   ];
 
   const developmentItems = [
-    { icon: Bug, label: 'Issues and filters', active: false },
-    { icon: FileText, label: 'Code', active: false },
-    { icon: Zap, label: 'Releases', active: false },
+    { icon: Bug, label: 'Issues and filters', to: '/tickets' },
+    { icon: FileText, label: 'Board', to: '/board' },
+    { icon: Zap, label: 'Releases', to: '/stage/development' },
   ];
 
   const projectItems = [
-    { icon: Users, label: 'Project pages', active: false },
-    { icon: Calendar, label: 'Timeline', active: false },
-    { icon: Settings, label: 'Project settings', active: false },
+    { icon: Users, label: 'Project pages', to: '/projects' },
+    { icon: Calendar, label: 'Timeline', to: '/stage/completed' },
+    { icon: Settings, label: 'Project settings', to: '/settings' },
   ];
 
   const projects = [
@@ -52,18 +53,20 @@ const Sidebar = () => {
     </div>
   );
 
-  const NavItem = ({ icon: Icon, label, active }: { icon: any, label: string, active: boolean }) => (
-    <a
-      href="#"
-      className={`group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors duration-150 ${
-        active
-          ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-r-2 border-blue-600'
-          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
-      }`}
+  const NavItem = ({ icon: Icon, label, to }: { icon: any, label: string, to: string }) => (
+    <NavLink
+      to={to}
+      className={({ isActive }) =>
+        `group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors duration-150 ${
+          isActive
+            ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-r-2 border-blue-600'
+            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'
+        }`
+      }
     >
       <Icon className="mr-3 h-4 w-4" />
       {label}
-    </a>
+    </NavLink>
   );
 
   return (
@@ -115,19 +118,19 @@ const Sidebar = () => {
             </button>
           </div>
           <div className="space-y-1 mt-2">
-            {projects.map((project, index) => (
-              <a
-                key={index}
-                href="#"
-                className="group flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-colors duration-150"
-              >
-                <span className="mr-3 text-base">{project.avatar}</span>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium truncate">{project.name}</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">{project.key}</div>
-                </div>
-              </a>
-            ))}
+              {projects.map((project, index) => (
+                <NavLink
+                  key={index}
+                  to="/projects"
+                  className="group flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-colors duration-150"
+                >
+                  <span className="mr-3 text-base">{project.avatar}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium truncate">{project.name}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">{project.key}</div>
+                  </div>
+                </NavLink>
+              ))}
           </div>
         </div>
       </div>
