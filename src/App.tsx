@@ -30,7 +30,7 @@ function App() {
                   <Route path="/tickets" element={<TicketListPage />} />
                   <Route path="/tickets/:ticketId" element={<TicketDetailPage />} />
                   <Route path="/board" element={<KanbanBoard />} />
-                  <Route path="/sprint" element={<TaskTable />} />
+                  <Route path="/sprint" element={<TaskTable mode="sprint" />} />
                   <Route path="/stage/:stage" element={<StagesPage />} />
                   <Route path="/projects" element={<ProjectsPage />} />
                   <Route path="/reports" element={<ReportsPage />} />

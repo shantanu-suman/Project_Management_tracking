@@ -18,23 +18,29 @@ import {
 import { Issue } from '../types';
 import FiltersBar from './FiltersBar';
 
-const TaskTable = () => {
+interface TaskTableProps {
+  mode?: 'sprint' | 'backlog';
+}
+
+const TaskTable: React.FC<TaskTableProps> = ({ mode = 'sprint' }) => {
   const { state, openCreateIssueModal, openIssueDetail } = useApp();
   
 
-  // Filter issues based on search query, current sprint, and filters
+  // Filter issues based on search query, view mode, and filters
   const filteredIssues = state.issues.filter(issue => {
     const matchesSearch = !state.searchQuery || 
       issue.summary.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
       issue.key.toLowerCase().includes(state.searchQuery.toLowerCase());
     
     const inCurrentSprint = issue.sprint === state.currentSprint?.id;
+    const inBacklog = !issue.sprint || issue.sprint !== state.currentSprint?.id;
+    const inView = mode === 'backlog' ? inBacklog : inCurrentSprint;
     const matchesAssignee = state.filters.assignee.length === 0 || (issue.assignee && state.filters.assignee.includes(issue.assignee.name));
     const matchesStatus = state.filters.status.length === 0 || state.filters.status.includes(issue.status);
     const matchesType = state.filters.type.length === 0 || state.filters.type.includes(issue.type);
     const matchesPriority = state.filters.priority.length === 0 || state.filters.priority.includes(issue.priority);
 
-    return matchesSearch && inCurrentSprint && matchesAssignee && matchesStatus && matchesType && matchesPriority;
+    return matchesSearch && inView && matchesAssignee && matchesStatus && matchesType && matchesPriority;
   });
 
   const completedIssues = filteredIssues.filter(issue => issue.status === 'Done').length;
@@ -103,27 +109,40 @@ const TaskTable = () => {
     <div className="flex-1 overflow-hidden bg-gray-50 dark:bg-gray-800">
       {/* Sprint Header */}
       <div className="bg-white dark:bg-gray-900 px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
-              {state.currentSprint?.name || 'Current Sprint'}
-            </h1>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-              {totalIssues} issues • {completedIssues} completed
-            </p>
-          </div>
-          <div className="flex items-center space-x-3">
-            <div className="text-sm text-gray-600 dark:text-gray-400">
-              <span className="font-medium">{completedIssues}</span> of <span className="font-medium">{totalIssues}</span> issues completed
+        {mode === 'sprint' ? (
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
+                {state.currentSprint?.name || 'Current Sprint'}
+              </h1>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                {totalIssues} issues • {completedIssues} completed
+              </p>
             </div>
-            <div className="w-32 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-              <div className="bg-green-500 h-2 rounded-full" style={{ width: `${completionPercentage}%` }}></div>
+            <div className="flex items-center space-x-3">
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                <span className="font-medium">{completedIssues}</span> of <span className="font-medium">{totalIssues}</span> issues completed
+              </div>
+              <div className="w-32 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                <div className="bg-green-500 h-2 rounded-full" style={{ width: `${completionPercentage}%` }}></div>
+              </div>
+              <button className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-sm font-medium">
+                Complete sprint
+              </button>
             </div>
-            <button className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-sm font-medium">
-              Complete sprint
-            </button>
           </div>
-        </div>
+        ) : (
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-xl font-semibold text-gray-900 dark:text-white">Backlog</h1>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{totalIssues} issues</p>
+            </div>
+            <div className="flex items-center space-x-3">
+              <div className="text-sm text-gray-600 dark:text-gray-400">Filter and create issues to plan upcoming sprints</div>
+              <button onClick={openCreateIssueModal} className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-sm font-medium">Create issue</button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Filters */}
